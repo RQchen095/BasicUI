@@ -241,7 +241,7 @@ fun Main(modifier: Modifier = Modifier) {
                 .background(Color.LightGray) // 輕微底色
                 .clickable {
                     // 按下圖片時，切換圖片資源 ID
-                    imageResId = if (imageResId == R.drawable.android) {
+                    imageResId = if (imageResId == R.drawable.animal9) {
                         R.drawable.animal1 // 假設 R.drawable.compose 是您想切換的第二張圖片
                     } else {
                         R.drawable.animal9
