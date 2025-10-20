@@ -10,6 +10,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,7 +20,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
@@ -30,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -66,23 +67,25 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Main(modifier: Modifier = Modifier) {
 
-    var Animals = listOf(R.drawable.animal0, R.drawable.animal1,
+    val Animals = listOf(R.drawable.animal0, R.drawable.animal1,
         R.drawable.animal2, R.drawable.animal3,
         R.drawable.animal4, R.drawable.animal5,
         R.drawable.animal6, R.drawable.animal7,
         R.drawable.animal8, R.drawable.animal9)
 
-    var AnimalsName = arrayListOf("鴨子","企鵝",
+    val AnimalsName = arrayListOf("鴨子","企鵝",
         "青蛙","貓頭鷹","海豚", "牛", "無尾熊", "獅子", "狐狸", "小雞")
     var flag by remember { mutableStateOf(value="text") }
+
+    // 新增：圖片按鈕的狀態變數，初始為 R.drawable.android
+    var imageResId by remember { mutableIntStateOf(R.drawable.android) }
+
 
     // 取得當前的 Context
     val context = LocalContext.current
 
     // 使用 remember 儲存 MediaPlayer 實例
     var mper: MediaPlayer? by remember { mutableStateOf(null) }
-
-
 
 
     Column (
@@ -117,7 +120,7 @@ fun Main(modifier: Modifier = Modifier) {
                     .clip(CircleShape)
                     .background(Color.Yellow),
                 alpha = 0.6f,
-                )
+            )
 
             Image(
                 painter = painterResource(id = R.drawable.compose),
@@ -147,9 +150,6 @@ fun Main(modifier: Modifier = Modifier) {
                 )
 
             }
-
-
-
         }
         Spacer(modifier = Modifier.size(10.dp))
 
@@ -161,12 +161,6 @@ fun Main(modifier: Modifier = Modifier) {
                 else{
                     flag="text"
                 }
-
-            /*Toast.makeText(
-                context,
-                text="Compose 按鈕被點了"
-                duration=Toast.LEN
-            )*/
             }
         ){
             Text(text="按鈕測試")
@@ -178,51 +172,47 @@ fun Main(modifier: Modifier = Modifier) {
         Row{
             Button(
                 onClick = {
+                    mper?.release()
+                    mper = null
                     mper = MediaPlayer.create(context, R.raw.tcyang) //設定音樂
                     mper?.start()
-            },
+                },
                 modifier = Modifier
-                .fillMaxWidth(0.33f)
-                .fillMaxHeight(0.8f),
-            colors = buttonColors(Color.Green)
-
-
-
-                ) {
+                    .fillMaxWidth(0.33f)
+                    .fillMaxHeight(0.8f),
+                colors = buttonColors(Color.Green)
+            ) {
                 Text(text = "歡迎", color = Color.Blue)
                 Text(text = "修課", color = Color.Red)
                 Image(painterResource(id = R.drawable.teacher),
-                contentDescription ="teacher icon")
+                    contentDescription ="teacher icon")
             }
 
             Spacer(modifier = Modifier.size(10.dp))
 
             Button(onClick = {
-                mper = MediaPlayer.create(context, R.raw.tcyang) //設定音樂
-                mper?.start()
-            },
+                mper?.release()  //釋放資源
+                mper = null // 清除舊引用
+                mper = MediaPlayer.create(context, R.raw.fly) //設定音樂
+                mper?.start()  },  //開始播放
                 modifier = Modifier
                     .fillMaxWidth(0.5f)
                     .fillMaxHeight(0.4f),
                 colors = buttonColors(Color.Blue)
-
             ) {
                 Text(text = "展翅飛翔", color = Color.White)
                 Image(
                     painterResource(id = R.drawable.fly),
                     contentDescription ="fly icon")
-
-
             }
+
 
             Spacer(modifier = Modifier.size(10.dp))
 
             Button(onClick = {
-               val activity=context as? Activity
-               activity?.finish()
-
-
-                },
+                val activity=context as? Activity
+                activity?.finish()
+            },
                 // 設定按鈕顏色為亮藍色
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00BFFF)),
 
@@ -239,6 +229,25 @@ fun Main(modifier: Modifier = Modifier) {
                 Text(text = "結束App")
             }
         }
+
+        // 新增：圖片按鈕
+        Spacer(modifier = Modifier.size(10.dp))
+        Image(
+            painter = painterResource(id = imageResId), // 使用狀態變數控制圖片
+            contentDescription = "可切換圖片的按鈕",
+            modifier = Modifier
+                .size(200.dp)
+                .clip(CircleShape) // 圓形外觀
+                .background(Color.LightGray) // 輕微底色
+                .clickable {
+                    // 按下圖片時，切換圖片資源 ID
+                    imageResId = if (imageResId == R.drawable.android) {
+                        R.drawable.animal1 // 假設 R.drawable.compose 是您想切換的第二張圖片
+                    } else {
+                        R.drawable.animal9
+                    }
+                }
+        )
 
 
     }
